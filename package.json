@@ -1,0 +1,22 @@
+{
+  "name": "wepback-boilerplate",
+  "version": "0.0.1",
+  "description": "Boilerplate simple to start a project using Webpack, Grunt and Compass",
+  "repository": "https://github.com/hebertsilva/webpack-boilerplate",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "node-libs-browser": "^0.5.0",
+    "babel-eslint": "^4.1.3",
+    "babel-loader": "^5.3.1",
+    "babel-runtime": "^5.6.15",
+    "webpack": "<1.12.10"
+  },
+  "dependencies": {
+    "jquery": "^2.1.3"
+  }
+}
