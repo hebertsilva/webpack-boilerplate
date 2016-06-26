@@ -1,46 +1,4 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
-
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
-
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-
-
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
+webpackJsonp([0,2,3],[
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -52,7 +10,7 @@
 
 	var _coreApp2 = _interopRequireDefault(_coreApp);
 
-	var _view = __webpack_require__(10);
+	var _view = __webpack_require__(9);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -10017,14 +9975,20 @@
 
 	var _classCallCheck = __webpack_require__(8)['default'];
 
+	var _interopRequireDefault = __webpack_require__(1)['default'];
+
 	Object.defineProperty(exports, '__esModule', {
 		value: true
 	});
 
+	var _coreLogger = __webpack_require__(10);
+
+	var _coreLogger2 = _interopRequireDefault(_coreLogger);
+
 	var _default = function _default() {
 		_classCallCheck(this, _default);
 
-		console.log('Init');
+		_coreLogger2['default'].info('Init Common');
 	};
 
 	exports['default'] = _default;
@@ -10036,398 +10000,276 @@
 
 	"use strict";
 
-	var _get = __webpack_require__(11)["default"];
-
-	var _inherits = __webpack_require__(26)["default"];
-
-	var _classCallCheck = __webpack_require__(8)["default"];
-
 	var _interopRequireDefault = __webpack_require__(1)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
-	var _commonView = __webpack_require__(9);
+	var _jsLogger = __webpack_require__(11);
 
-	var _commonView2 = _interopRequireDefault(_commonView);
+	var _jsLogger2 = _interopRequireDefault(_jsLogger);
 
-	var _default = (function (_BaseView) {
-	    _inherits(_default, _BaseView);
+	_jsLogger2["default"].useDefaults();
 
-	    function _default() {
-	        _classCallCheck(this, _default);
-
-	        _get(Object.getPrototypeOf(_default.prototype), "constructor", this).call(this);
-
-	        console.log('Init HomeView');
-	    }
-
-	    return _default;
-	})(_commonView2["default"]);
-
-	exports["default"] = _default;
+	exports["default"] = _jsLogger2["default"];
 	module.exports = exports["default"];
 
 /***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * js-logger - http://github.com/jonnyreeves/js-logger
+	 * Jonny Reeves, http://jonnyreeves.co.uk/
+	 * js-logger may be freely distributed under the MIT license.
+	 */
+	(function (global) {
+		"use strict";
 
-	var _Object$getOwnPropertyDescriptor = __webpack_require__(12)["default"];
+		// Top level module for the global, static logger instance.
+		var Logger = { };
 
-	exports["default"] = function get(_x, _x2, _x3) {
-	  var _again = true;
+		// For those that are at home that are keeping score.
+		Logger.VERSION = "1.2.0";
 
-	  _function: while (_again) {
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;
-	    _again = false;
-	    if (object === null) object = Function.prototype;
+		// Function which handles all incoming log messages.
+		var logHandler;
 
-	    var desc = _Object$getOwnPropertyDescriptor(object, property);
+		// Map of ContextualLogger instances by name; used by Logger.get() to return the same named instance.
+		var contextualLoggersByNameMap = {};
 
-	    if (desc === undefined) {
-	      var parent = Object.getPrototypeOf(object);
+		// Polyfill for ES5's Function.bind.
+		var bind = function(scope, func) {
+			return function() {
+				return func.apply(scope, arguments);
+			};
+		};
 
-	      if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;
-	        _x2 = property;
-	        _x3 = receiver;
-	        _again = true;
-	        desc = parent = undefined;
-	        continue _function;
-	      }
-	    } else if ("value" in desc) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;
+		// Super exciting object merger-matron 9000 adding another 100 bytes to your download.
+		var merge = function () {
+			var args = arguments, target = args[0], key, i;
+			for (i = 1; i < args.length; i++) {
+				for (key in args[i]) {
+					if (!(key in target) && args[i].hasOwnProperty(key)) {
+						target[key] = args[i][key];
+					}
+				}
+			}
+			return target;
+		};
 
-	      if (getter === undefined) {
-	        return undefined;
-	      }
+		// Helper to define a logging level object; helps with optimisation.
+		var defineLogLevel = function(value, name) {
+			return { value: value, name: name };
+		};
 
-	      return getter.call(receiver);
-	    }
-	  }
-	};
+		// Predefined logging levels.
+		Logger.DEBUG = defineLogLevel(1, 'DEBUG');
+		Logger.INFO = defineLogLevel(2, 'INFO');
+		Logger.TIME = defineLogLevel(3, 'TIME');
+		Logger.WARN = defineLogLevel(4, 'WARN');
+		Logger.ERROR = defineLogLevel(8, 'ERROR');
+		Logger.OFF = defineLogLevel(99, 'OFF');
 
-	exports.__esModule = true;
+		// Inner class which performs the bulk of the work; ContextualLogger instances can be configured independently
+		// of each other.
+		var ContextualLogger = function(defaultContext) {
+			this.context = defaultContext;
+			this.setLevel(defaultContext.filterLevel);
+			this.log = this.info;  // Convenience alias.
+		};
 
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
+		ContextualLogger.prototype = {
+			// Changes the current logging level for the logging instance.
+			setLevel: function (newLevel) {
+				// Ensure the supplied Level object looks valid.
+				if (newLevel && "value" in newLevel) {
+					this.context.filterLevel = newLevel;
+				}
+			},
 
-	module.exports = { "default": __webpack_require__(13), __esModule: true };
+			// Is the logger configured to output messages at the supplied level?
+			enabledFor: function (lvl) {
+				var filterLevel = this.context.filterLevel;
+				return lvl.value >= filterLevel.value;
+			},
 
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
+			debug: function () {
+				this.invoke(Logger.DEBUG, arguments);
+			},
 
-	var $ = __webpack_require__(7);
-	__webpack_require__(14);
-	module.exports = function getOwnPropertyDescriptor(it, key){
-	  return $.getDesc(it, key);
-	};
+			info: function () {
+				this.invoke(Logger.INFO, arguments);
+			},
 
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
+			warn: function () {
+				this.invoke(Logger.WARN, arguments);
+			},
 
-	// 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
-	var toIObject = __webpack_require__(15);
+			error: function () {
+				this.invoke(Logger.ERROR, arguments);
+			},
 
-	__webpack_require__(19)('getOwnPropertyDescriptor', function($getOwnPropertyDescriptor){
-	  return function getOwnPropertyDescriptor(it, key){
-	    return $getOwnPropertyDescriptor(toIObject(it), key);
-	  };
-	});
+			time: function (label) {
+				if (typeof label === 'string' && label.length > 0) {
+					this.invoke(Logger.TIME, [ label, 'start' ]);
+				}
+			},
 
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
+			timeEnd: function (label) {
+				if (typeof label === 'string' && label.length > 0) {
+					this.invoke(Logger.TIME, [ label, 'end' ]);
+				}
+			},
 
-	// to indexed object, toObject with fallback for non-array-like ES3 strings
-	var IObject = __webpack_require__(16)
-	  , defined = __webpack_require__(18);
-	module.exports = function(it){
-	  return IObject(defined(it));
-	};
+			// Invokes the logger callback if it's not being filtered.
+			invoke: function (level, msgArgs) {
+				if (logHandler && this.enabledFor(level)) {
+					logHandler(msgArgs, merge({ level: level }, this.context));
+				}
+			}
+		};
 
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
+		// Protected instance which all calls to the to level `Logger` module will be routed through.
+		var globalLogger = new ContextualLogger({ filterLevel: Logger.OFF });
 
-	// fallback for non-array-like ES3 and non-enumerable old V8 strings
-	var cof = __webpack_require__(17);
-	module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
-	  return cof(it) == 'String' ? it.split('') : Object(it);
-	};
+		// Configure the global Logger instance.
+		(function() {
+			// Shortcut for optimisers.
+			var L = Logger;
 
-/***/ },
-/* 17 */
-/***/ function(module, exports) {
+			L.enabledFor = bind(globalLogger, globalLogger.enabledFor);
+			L.debug = bind(globalLogger, globalLogger.debug);
+			L.time = bind(globalLogger, globalLogger.time);
+			L.timeEnd = bind(globalLogger, globalLogger.timeEnd);
+			L.info = bind(globalLogger, globalLogger.info);
+			L.warn = bind(globalLogger, globalLogger.warn);
+			L.error = bind(globalLogger, globalLogger.error);
 
-	var toString = {}.toString;
+			// Don't forget the convenience alias!
+			L.log = L.info;
+		}());
 
-	module.exports = function(it){
-	  return toString.call(it).slice(8, -1);
-	};
+		// Set the global logging handler.  The supplied function should expect two arguments, the first being an arguments
+		// object with the supplied log messages and the second being a context object which contains a hash of stateful
+		// parameters which the logging function can consume.
+		Logger.setHandler = function (func) {
+			logHandler = func;
+		};
 
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
+		// Sets the global logging filter level which applies to *all* previously registered, and future Logger instances.
+		// (note that named loggers (retrieved via `Logger.get`) can be configured independently if required).
+		Logger.setLevel = function(level) {
+			// Set the globalLogger's level.
+			globalLogger.setLevel(level);
 
-	// 7.2.1 RequireObjectCoercible(argument)
-	module.exports = function(it){
-	  if(it == undefined)throw TypeError("Can't call method on  " + it);
-	  return it;
-	};
+			// Apply this level to all registered contextual loggers.
+			for (var key in contextualLoggersByNameMap) {
+				if (contextualLoggersByNameMap.hasOwnProperty(key)) {
+					contextualLoggersByNameMap[key].setLevel(level);
+				}
+			}
+		};
 
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
+		// Retrieve a ContextualLogger instance.  Note that named loggers automatically inherit the global logger's level,
+		// default context and log handler.
+		Logger.get = function (name) {
+			// All logger instances are cached so they can be configured ahead of use.
+			return contextualLoggersByNameMap[name] ||
+				(contextualLoggersByNameMap[name] = new ContextualLogger(merge({ name: name }, globalLogger.context)));
+		};
 
-	// most Object methods by ES6 should accept primitives
-	var $export = __webpack_require__(20)
-	  , core    = __webpack_require__(22)
-	  , fails   = __webpack_require__(25);
-	module.exports = function(KEY, exec){
-	  var fn  = (core.Object || {})[KEY] || Object[KEY]
-	    , exp = {};
-	  exp[KEY] = exec(fn);
-	  $export($export.S + $export.F * fails(function(){ fn(1); }), 'Object', exp);
-	};
+		// Configure and example a Default implementation which writes to the `window.console` (if present).  The
+		// `options` hash can be used to configure the default logLevel and provide a custom message formatter.
+		Logger.useDefaults = function(options) {
+			options = options || {};
 
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
+			options.formatter = options.formatter || function defaultMessageFormatter(messages, context) {
+				// Prepend the logger's name to the log message for easy identification.
+				if (context.name) {
+					messages.unshift("[" + context.name + "]");
+				}
+			};
 
-	var global    = __webpack_require__(21)
-	  , core      = __webpack_require__(22)
-	  , ctx       = __webpack_require__(23)
-	  , PROTOTYPE = 'prototype';
+			// Check for the presence of a logger.
+			if (typeof console === "undefined") {
+				return;
+			}
 
-	var $export = function(type, name, source){
-	  var IS_FORCED = type & $export.F
-	    , IS_GLOBAL = type & $export.G
-	    , IS_STATIC = type & $export.S
-	    , IS_PROTO  = type & $export.P
-	    , IS_BIND   = type & $export.B
-	    , IS_WRAP   = type & $export.W
-	    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
-	    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
-	    , key, own, out;
-	  if(IS_GLOBAL)source = name;
-	  for(key in source){
-	    // contains in native
-	    own = !IS_FORCED && target && key in target;
-	    if(own && key in exports)continue;
-	    // export native or passed
-	    out = own ? target[key] : source[key];
-	    // prevent global pollution for namespaces
-	    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
-	    // bind timers to global for call from export context
-	    : IS_BIND && own ? ctx(out, global)
-	    // wrap global constructors for prevent change them in library
-	    : IS_WRAP && target[key] == out ? (function(C){
-	      var F = function(param){
-	        return this instanceof C ? new C(param) : C(param);
-	      };
-	      F[PROTOTYPE] = C[PROTOTYPE];
-	      return F;
-	    // make static versions for prototype methods
-	    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
-	    if(IS_PROTO)(exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
-	  }
-	};
-	// type bitmap
-	$export.F = 1;  // forced
-	$export.G = 2;  // global
-	$export.S = 4;  // static
-	$export.P = 8;  // proto
-	$export.B = 16; // bind
-	$export.W = 32; // wrap
-	module.exports = $export;
+			// Map of timestamps by timer labels used to track `#time` and `#timeEnd()` invocations in environments
+			// that don't offer a native console method.
+			var timerStartTimeByLabelMap = {};
 
-/***/ },
-/* 21 */
-/***/ function(module, exports) {
+			// Support for IE8+ (and other, slightly more sane environments)
+			var invokeConsoleMethod = function (hdlr, messages) {
+				Function.prototype.apply.call(hdlr, console, messages);
+			};
 
-	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-	var global = module.exports = typeof window != 'undefined' && window.Math == Math
-	  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
-	if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
+			Logger.setLevel(options.defaultLevel || Logger.DEBUG);
+			Logger.setHandler(function(messages, context) {
+				// Convert arguments object to Array.
+				messages = Array.prototype.slice.call(messages);
 
-/***/ },
-/* 22 */
-/***/ function(module, exports) {
+				var hdlr = console.log;
+				var timerLabel;
 
-	var core = module.exports = {version: '1.2.6'};
-	if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+				if (context.level === Logger.TIME) {
+					timerLabel = (context.name ? '[' + context.name + '] ' : '') + messages[0];
 
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
+					if (messages[1] === 'start') {
+						if (console.time) {
+							console.time(timerLabel);
+						}
+						else {
+							timerStartTimeByLabelMap[timerLabel] = new Date().getTime();
+						}
+					}
+					else {
+						if (console.timeEnd) {
+							console.timeEnd(timerLabel);
+						}
+						else {
+							invokeConsoleMethod(hdlr, [ timerLabel + ': ' +
+								(new Date().getTime() - timerStartTimeByLabelMap[timerLabel]) + 'ms' ]);
+						}
+					}
+				}
+				else {
+					// Delegate through to custom warn/error loggers if present on the console.
+					if (context.level === Logger.WARN && console.warn) {
+						hdlr = console.warn;
+					} else if (context.level === Logger.ERROR && console.error) {
+						hdlr = console.error;
+					} else if (context.level === Logger.INFO && console.info) {
+						hdlr = console.info;
+					}
 
-	// optional / simple context binding
-	var aFunction = __webpack_require__(24);
-	module.exports = function(fn, that, length){
-	  aFunction(fn);
-	  if(that === undefined)return fn;
-	  switch(length){
-	    case 1: return function(a){
-	      return fn.call(that, a);
-	    };
-	    case 2: return function(a, b){
-	      return fn.call(that, a, b);
-	    };
-	    case 3: return function(a, b, c){
-	      return fn.call(that, a, b, c);
-	    };
-	  }
-	  return function(/* ...args */){
-	    return fn.apply(that, arguments);
-	  };
-	};
+					options.formatter(messages, context);
+					invokeConsoleMethod(hdlr, messages);
+				}
+			});
+		};
 
-/***/ },
-/* 24 */
-/***/ function(module, exports) {
+		// Export to popular environments boilerplate.
+		if (true) {
+			!(__WEBPACK_AMD_DEFINE_FACTORY__ = (Logger), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		}
+		else if (typeof module !== 'undefined' && module.exports) {
+			module.exports = Logger;
+		}
+		else {
+			Logger._prevLogger = global.Logger;
 
-	module.exports = function(it){
-	  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
-	  return it;
-	};
+			Logger.noConflict = function () {
+				global.Logger = Logger._prevLogger;
+				return Logger;
+			};
 
-/***/ },
-/* 25 */
-/***/ function(module, exports) {
+			global.Logger = Logger;
+		}
+	}(this));
 
-	module.exports = function(exec){
-	  try {
-	    return !!exec();
-	  } catch(e){
-	    return true;
-	  }
-	};
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _Object$create = __webpack_require__(27)["default"];
-
-	var _Object$setPrototypeOf = __webpack_require__(29)["default"];
-
-	exports["default"] = function (subClass, superClass) {
-	  if (typeof superClass !== "function" && superClass !== null) {
-	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-	  }
-
-	  subClass.prototype = _Object$create(superClass && superClass.prototype, {
-	    constructor: {
-	      value: subClass,
-	      enumerable: false,
-	      writable: true,
-	      configurable: true
-	    }
-	  });
-	  if (superClass) _Object$setPrototypeOf ? _Object$setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(28), __esModule: true };
-
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var $ = __webpack_require__(7);
-	module.exports = function create(P, D){
-	  return $.create(P, D);
-	};
-
-/***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(30), __esModule: true };
-
-/***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-	__webpack_require__(31);
-	module.exports = __webpack_require__(22).Object.setPrototypeOf;
-
-/***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// 19.1.3.19 Object.setPrototypeOf(O, proto)
-	var $export = __webpack_require__(20);
-	$export($export.S, 'Object', {setPrototypeOf: __webpack_require__(32).set});
-
-/***/ },
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Works with __proto__ only. Old v8 can't work with null proto objects.
-	/* eslint-disable no-proto */
-	var getDesc  = __webpack_require__(7).getDesc
-	  , isObject = __webpack_require__(33)
-	  , anObject = __webpack_require__(34);
-	var check = function(O, proto){
-	  anObject(O);
-	  if(!isObject(proto) && proto !== null)throw TypeError(proto + ": can't set as prototype!");
-	};
-	module.exports = {
-	  set: Object.setPrototypeOf || ('__proto__' in {} ? // eslint-disable-line
-	    function(test, buggy, set){
-	      try {
-	        set = __webpack_require__(23)(Function.call, getDesc(Object.prototype, '__proto__').set, 2);
-	        set(test, []);
-	        buggy = !(test instanceof Array);
-	      } catch(e){ buggy = true; }
-	      return function setPrototypeOf(O, proto){
-	        check(O, proto);
-	        if(buggy)O.__proto__ = proto;
-	        else set(O, proto);
-	        return O;
-	      };
-	    }({}, false) : undefined),
-	  check: check
-	};
-
-/***/ },
-/* 33 */
-/***/ function(module, exports) {
-
-	module.exports = function(it){
-	  return typeof it === 'object' ? it !== null : typeof it === 'function';
-	};
-
-/***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var isObject = __webpack_require__(33);
-	module.exports = function(it){
-	  if(!isObject(it))throw TypeError(it + ' is not an object!');
-	  return it;
-	};
 
 /***/ }
-/******/ ]);
+]);

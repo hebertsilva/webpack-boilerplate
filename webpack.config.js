@@ -3,6 +3,8 @@
 
 var webpack = require('webpack');
 
+var CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
+
 var path = require('path');
 var basePath =  __dirname;
 var srcPath = basePath + '/src/';
@@ -20,15 +22,27 @@ var config = {
 
 	output: {
     	path: srcPath + 'js/build/',
-    	filename: 'app.bundle.js'
+    	filename: '[name].js',
+        chunkFilename: '[id].js'
   	},
 
   	plugins: [
+        new CommonsChunkPlugin({
+            name: 'commons',
+            // filename: 'commons.[chunkhash].js',
+            filename: 'commons.js',
+            minChunks: 2,
+            chunks: [
+                'common',
+            ]
+        }),
   		new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery",
             "window.jQuery": "jquery"
         }),
+
+        new CommonsChunkPlugin("commons.js")
   	],
 
   	resolve: {

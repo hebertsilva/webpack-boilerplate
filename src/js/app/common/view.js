@@ -1,5 +1,7 @@
+import log from 'core/logger';
+
 export default class {
 	constructor() {
-		console.log('Init');
+		log.info('Init Common');
 	}
 }
