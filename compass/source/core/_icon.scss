@@ -1,0 +1,15 @@
+
+/*
+	## Generate icon's
+*/
+
+%sprt {
+    @include inline-block;
+    background-image: $site-sprites;
+    background-repeat: no-repeat;
+
+    @include retina {
+        background-image: $site-sprites-2x;
+        @include background-size(ceil(image-width(sprite-path($site-sprites-2x)) / 2) auto);
+    }
+}

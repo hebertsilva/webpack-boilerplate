@@ -1,3 +1,20 @@
+syntax: glob
+
+# system
 .DS_store
+*.pyc
+*.db
+
+# node
 node_modules
-src/build/
+npm-debug.log
+
+# compass
+.sass-cache
+*.lock
+Gemfile.lock
+static/css
+
+# webpack
+static/js/build
+static/js/stats

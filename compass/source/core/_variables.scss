@@ -1,0 +1,44 @@
+
+/*
+	## Variables for config project
+*/
+
+/*
+	## Layout
+*/
+
+$container: 1024px;
+$break-point-large: 960px;
+$break-point-medium: 768px;
+$break-point-extra-medium: 680px;
+$break-point-small: 480px;
+
+
+/*
+	## Sprites setup
+*/
+
+$use-retina-sprites: false;
+$site-sprites-prefix: 's';
+$site-sprites: sprite-map("sprite/*.png", $spacing: 15px);
+
+/*
+	## Fonts
+*/
+
+$font-1:                                "open-sans";
+$font-default:                          $font-1;
+$bold-default:                          700;
+$font-size-base:                        12px;
+
+/*
+	## Font Size
+*/
+
+$fz-default: 12px;
+$fz-small: 14px;
+$fz-extra-small: 16px;
+$fz-medium: 18px;
+$fz-extra-medium: 20px;
+$fz-large: 22px;
+$fz-extra-large: 24px;

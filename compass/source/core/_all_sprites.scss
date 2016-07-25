@@ -1,0 +1,14 @@
+
+/*
+	## Generate all-sprite
+*/
+
+.#{$site-sprites-prefix} {
+    @extend %sprt;
+}
+
+@each $name in sprite-names($site-sprites) {
+    .#{$site-sprites-prefix}-#{$name} {
+        @include sprt-position($name);
+    }
+}

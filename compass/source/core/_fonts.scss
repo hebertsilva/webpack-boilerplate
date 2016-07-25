@@ -1,0 +1,14 @@
+
+/*
+	## Fonts imports
+*/
+
+/*
+	## Open Sans
+*/
+
+@include make-font($font-1, "Open Sans", 300);
+@include make-font($font-1, "Open Sans", 400);
+@include make-font($font-1, "Open Sans", 600);
+@include make-font($font-1, "Open Sans", 700);
+@include make-font($font-1, "Open Sans", 800);

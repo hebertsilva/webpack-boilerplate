@@ -1,0 +1,10 @@
+/*
+	## Global style
+*/
+
+@import "core/base";
+
+body {
+	@include font($font-default, 400);
+	font-size: $fz-default;
+}
