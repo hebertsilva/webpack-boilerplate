@@ -17,5 +17,5 @@ static/css
 .bundle
 
 # webpack
-static/js/build/*.js
-static/js/stats/*.js
+static/js/build/*/*.js
+static/js/stats/*.json
