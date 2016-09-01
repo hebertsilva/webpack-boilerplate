@@ -21,7 +21,7 @@ module.exports = {
     },
 
     fontello: {
-        files: ["<%= options.staticPath %>font/fontello/*.json"],
+        files: ["<%= options.fontPath %>fontello/*.json"],
         tasks: ["fontello"]
     }
 };

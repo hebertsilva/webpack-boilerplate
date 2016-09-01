@@ -4,7 +4,8 @@ module.exports = {
     },
 
     watchAll: {
-        tasks: ["shell:compassWatch", "webpack:watch"]
+        // tasks: ["shell:compassWatch", "watch:livereload", "watch:sprites",  "webpack:watch"]
+        tasks: ["shell:compassWatch", "webpack:watch", "watch"]
     },
 
     watchJS: {

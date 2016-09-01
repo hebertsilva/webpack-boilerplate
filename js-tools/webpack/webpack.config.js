@@ -23,14 +23,16 @@ var config = {
 	output: {
     	path: staticPath + 'js/build/development',
         publicPath: "/static/js/build/development/",
-    	filename: '[name].[chunkhash].js',
+        // filename: '[name].[chunkhash].js',
+    	filename: '[name].js',
         chunkFilename: '[id].js'
   	},
 
   	plugins: [
         new CommonsChunkPlugin({
             name: 'commons',
-            filename: 'commons.[chunkhash].js',
+            // filename: 'commons.[chunkhash].js',
+            filename: 'commons.js',
             minChunks: 2,
             chunks: [
                 'common',
